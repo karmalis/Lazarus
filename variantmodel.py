@@ -6,6 +6,8 @@ import time
 import calendar
 from datetime import datetime
 
+from pprint import pprint
+
 class VariantConnector:
 
 	def __init__(self, cparams):
@@ -72,8 +74,13 @@ class VariantConnector:
 			result = self.compareclinvar(doc, vobj)
 
 			if result['changed']:
-				print('YUP')
-		# Compare the clinvar data
+				to_insert = {
+					"querystring": vobj.vcfdata.getQueryParam(),
+					"change": result
+				}
+				test = self.db[self.cparams["ncollection"]].insert_one(to_insert)
+				print(test)			
+
 
 	def compareclinvar(self, cvarD, cvarF):
 		#print(cvarA['clinvar']['rcv'][0])
@@ -97,8 +104,6 @@ class VariantConnector:
 
 		timestampD = int(timestampD)
 		timestampF = int(timestampF)
-
-		timestampF += 1
 
 		if timestampF == timestampD:
 			return {
