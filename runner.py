@@ -1,29 +1,59 @@
-
-from pymongo import MongoClient
-from datetime import datetime
-
 from vcfreader import VCFReader
 from variantmodel import VariantConnector
 
-import requests
-
-vcffile = VCFReader("./RD/150407216.vcf")
-vcffile.parse()
-
-vconnector = VariantConnector({
-		"host" : "mongodb://localhost:27017",
-		"database" : "lazarus",
-		"vcollection" : "variants",
-		"ncollection" : "notifications"
-	})
-vconnector.connect()
+import argparse
+from pathlib import Path
+from pprint import pprint
 
 
-test = ""
-for vcobj in vcffile.getResult():
-	vobj = vcobj.queryMyVariant()
-	vconnector.process(vobj)
-	break
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-d', help="Directory of the VCF files")
+	args = parser.parse_args()
+
+	if args.d is None:
+		parser.print_help()
+	else:
+		try:
+			vconnector = VariantConnector({
+					"host" : "mongodb://localhost:27017",
+					"database" : "lazarus",
+					"vcollection" : "variants",
+					"ncollection" : "notifications"
+				})
+			vconnector.connect()
+
+			pathlist = Path(args.d).glob("**/*.vcf")
+			for path in pathlist:
+				vcffile = VCFReader(str(path))
+				vcffile.parse()
+
+				for vcobj in vcffile.getResult():
+					vobj = vcobj.queryMyVariant()
+					vconnector.process(vobj)
+
+		except Exception as e:
+			print(e)
+		
+
+
+# vcffile = VCFReader("./RD/150407216.vcf")
+# vcffile.parse()
+
+
+
+
+# test = ""
+# for vcobj in vcffile.getResult():
+# 	vobj = vcobj.queryMyVariant()
+# 	vconnector.process(vobj)
+# 	break
+
+
+
+
+
+###################
 
 # print(test)
 
