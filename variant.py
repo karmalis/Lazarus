@@ -4,6 +4,7 @@ import logging
 import requests
 from pathlib import Path
 
+from util import format_hgvs
 
 def reader(directory):
     vconnector = VariantConnector({
@@ -101,6 +102,8 @@ class VariantModel(object):
 
     def __init__(self, params=None, connector=None, db_variant=None):
 
+        self._qstring = ""
+
         if params is not None:
             self.chrom = params["chrom"]
             self.cpos = params["cpos"]
@@ -116,8 +119,10 @@ class VariantModel(object):
             self._myvariant = {}
 
     def get_variant_query_string(self):
-        # TEMPORARY
-        return "chr" + self.chrom + ":g." + self.cpos + self.ref + ">" + self.alt
+        if self._qstring == "":
+            self._qstring = format_hgvs(self.chrom, self.cpos, self.ref, self.alt)
+
+        return self._qstring
 
     def find_in_db(self, qstring):
         return self._connector.find(qstring)
