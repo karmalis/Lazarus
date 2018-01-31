@@ -1,3 +1,10 @@
+import ntpath
+
+
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
 
 def _normalized_vcf(chrom, pos, ref, alt):
     _ref = None

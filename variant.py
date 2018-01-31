@@ -2,11 +2,14 @@ from pymongo import MongoClient
 
 import logging
 import requests
+import os
 from pathlib import Path
 
 from util import format_hgvs
+from util import path_leaf
 
-def reader(directory):
+
+def reader(directory, archive):
     vconnector = VariantConnector({
         "host": "mongodb://localhost:27017",
         "database": "lazarus",
@@ -27,6 +30,13 @@ def reader(directory):
             logging.error("Exception raised while parsing: " + str(path))
             logging.exception(e)
             continue
+        else:
+            filename = path_leaf(path)
+            try:
+                os.replace(path, archive + filename)
+            except OSError as ose:
+                logging.error("Exception raised while archiving: " + str(path))
+                logging.exception(ose)
 
 
 class VariantDatabaseException(Exception):

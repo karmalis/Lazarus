@@ -9,9 +9,10 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", help="Scan directory for new data")
+    parser.add_argument("-a", help="Archive folder for processed data")
     args = parser.parse_args()
 
-    if args.d is None:
+    if args.d is None or args.a is None:
         parser.print_help()
         return
 
@@ -20,7 +21,7 @@ def main():
     logging.logProcesses = 0
 
     try:
-        reader(args.d)
+        reader(args.d, args.a)
     except Exception as e:
         logging.critical(e)
 
